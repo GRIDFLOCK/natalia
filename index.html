@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>З 8 березня, Наталія!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Comfortaa:wght@400;600&display=swap');
+
+  :root {
+    --primary-glow: #ff00cc;
+    --secondary-glow: #ff3399;
+  }
+
+  body, html {
+    margin: 0; 
+    padding: 0;
+    height: 100vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    background: linear-gradient(-45deg, #1a0011, #3b0a2a, #110214, #2a0026);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    overflow: hidden; 
+    user-select: none;
+    perspective: 1000px; /* Додаємо перспективу для 3D ефекту */
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .greeting-text {
+    position: absolute;
+    top: 10%;
+    text-align: center;
+    font-family: 'Comfortaa', sans-serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 0 15px var(--primary-glow), 0 0 25px var(--secondary-glow);
+    opacity: 0;
+    animation: slideDownFade 2s 0.3s forwards cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 30;
+    letter-spacing: 1px;
+  }
+
+  .canvas-container {
+    position: relative;
+    width: 400px; 
+    height: 400px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    margin-top: 20px; 
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out; /* Плавність 3D повороту */
+  }
+
+  .heart-svg {
+    width: 280px;
+    filter: drop-shadow(0 0 25px rgba(255, 20, 147, 0.7));
+    z-index: 10;
+    will-change: transform, filter;
+  }
+
+  .heart-path {
+    fill: transparent;
+    stroke: url(#grad);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    filter: url(#neon-glow); 
+    transition: fill 1.5s ease-in-out; 
+  }
+
+  .spark {
+    fill: #ffffff;
+    filter: url(#neon-glow);
+    transition: opacity 0.5s ease;
+  }
+
+  .name-text {
+    position: absolute;
+    z-index: 20;
+    font-family: 'Pacifico', cursive;
+    font-size: 3.8rem;
+    color: #fff;
+    text-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--primary-glow), 0 0 35px #6633ff;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    pointer-events: none;
+    transform: translateY(-15px); 
+    will-change: transform, filter;
+  }
+
+  /* Новий блок: приховане побажання */
+  .secret-message {
+    position: absolute;
+    bottom: 12%;
+    text-align: center;
+    font-family: 'Comfortaa', sans-serif;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: #ffd1dc;
+    max-width: 80%;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 2s ease, transform 2s ease;
+    text-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+    z-index: 30;
+  }
+
+  .secret-message.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .particle {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    font-size: clamp(14px, 2vw, 20px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+    will-change: transform, opacity; 
+  }
+
+  @keyframes slideDownFade {
+    0% { opacity: 0; transform: translateY(-40px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 25px rgba(255, 20, 147, 0.8)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 45px rgba(255, 20, 147, 1)); }
+  }
+
+  @keyframes heartbeatText {
+    0%, 100% { transform: translateY(-15px) scale(1); }
+    50% { transform: translateY(-15px) scale(1.08); }
+  }
+
+  @keyframes particleAnim {
+    0% { transform: translate(0, 0) scale(0.2) rotate(0deg); opacity: 1; }
+    80% { opacity: 0.8; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1.5) rotate(var(--rot)); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="greeting-text">Вітаю зі святом!</div>
+
+<div class="canvas-container" id="container">
+  <div class="name-text" id="nameText">Наталія</div>
+  <svg class="heart-svg" id="heartSvg" viewBox="0 0 32 32">
+    <defs>
+      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#ff00cc;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#ff6699;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#9933ff;stop-opacity:1" />
+      </linearGradient>
+      <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="0.8" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <path class="heart-path" id="heartPath" d="M16 28.5L14.1 26.8C7.33 20.65 3 16.74 3 12 3 8.13 6.13 5 10 5c2.26 0 4.43 1.05 5.86 2.71C17.3 6.05 19.47 5 21.73 5 25.61 5 28.74 8.13 28.74 12c0 4.74-4.33 8.65-11.1 14.81L16 28.5z"/>
+    <circle class="spark" id="spark" r="0.6" cx="-10" cy="-10" />
+  </svg>
+</div>
+
+<div class="secret-message" id="secretMessage">
+  Нехай кожен день буде наповнений ніжністю,<br>красою та безмежним щастям! ✨
+</div>
+
+<script>
+  const path = document.getElementById('heartPath');
+  const spark = document.getElementById('spark');
+  const heartSvg = document.getElementById('heartSvg');
+  const nameText = document.getElementById('nameText');
+  const secretMessage = document.getElementById('secretMessage');
+  const container = document.getElementById('container');
+  const pathLen = path.getTotalLength();
+  
+  path.style.strokeDasharray = pathLen;
+  path.style.strokeDashoffset = pathLen;
+
+  const duration = 5000; 
+  let start = null;
+
+  function drawStep(timestamp) {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    
+    path.style.strokeDashoffset = pathLen * (1 - ease);
+    
+    const pt = path.getPointAtLength(pathLen * ease);
+    spark.setAttribute('cx', pt.x);
+    spark.setAttribute('cy', pt.y);
+    
+    if (progress < 1) {
+      requestAnimationFrame(drawStep);
+    } else {
+      spark.style.opacity = '0'; 
+      path.style.fill = 'rgba(255, 20, 147, 0.35)'; 
+      
+      heartSvg.style.animation = 'heartbeat 1.8s infinite ease-in-out';
+      
+      setTimeout(() => {
+        nameText.style.opacity = '1';
+        nameText.style.animation = 'heartbeatText 1.8s infinite ease-in-out';
+        
+        // Показуємо секретне побажання ще через секунду
+        setTimeout(() => {
+          secretMessage.classList.add('show');
+        }, 1000);
+
+      }, 500);
+    }
+  }
+
+  setTimeout(() => { requestAnimationFrame(drawStep); }, 800);
+
+  // --- 3D ПАРАЛАКС ЕФЕКТ ---
+  document.addEventListener('mousemove', (e) => {
+    const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+    const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+    container.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+  });
+
+  // Підтримка для телефонів (тач-події)
+  document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    const xAxis = (window.innerWidth / 2 - touch.clientX) / 25;
+    const yAxis = (window.innerHeight / 2 - touch.clientY) / 25;
+    container.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+  });
+
+
+  // --- ФОНТАН СЕРДЕЧОК ---
+  const particlesArray = ['💖', '💕', '💗', '💓', '✨', '🌸', '💫']; 
+  
+  function createParticle() {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    p.innerText = particlesArray[Math.floor(Math.random() * particlesArray.length)];
+    
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.random() * 200 + 90; 
+    
+    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    
+    p.style.left = '50%';
+    p.style.top = '50%';
+    p.style.transformOrigin = 'center center';
+    
+    const durationAnim = Math.random() * 1.5 + 1.2;
+    p.style.animation = `particleAnim ${durationAnim}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+    
+    container.appendChild(p);
+    
+    setTimeout(() => {
+      if(p.parentNode) p.parentNode.removeChild(p);
+    }, durationAnim * 1000 + 100);
+  }
+
+  let drawingFountain = setInterval(createParticle, 45);
+  
+  setTimeout(() => {
+    clearInterval(drawingFountain);
+    setInterval(createParticle, 600);
+  }, 5500); 
+
+</script>
+
+</body>
+</html>
